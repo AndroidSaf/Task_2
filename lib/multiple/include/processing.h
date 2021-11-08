@@ -9,5 +9,6 @@
 #include "memory.h"
 
 int **get_random_matrix(int size);
+int *get_diagonal_sums(int **matrix, int size);
 
 #endif //MULTIPLE_H
