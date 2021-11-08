@@ -21,6 +21,13 @@ int main(int argc, char *argv[]) {
                 matrix = get_random_matrix(size);
                 if (matrix == NULL)
                     return EXIT_FAILURE;
+                diag_sum_array = get_diagonal_sums(matrix, size);
+                if (diag_sum_array == NULL) {
+                    printf("Failure!\n");
+                    return EXIT_FAILURE;
+                }
+                else
+                    printf("Successfully!\n");
                 break;
             case 'h':
                 printf("-s -- size of matrix\n");
