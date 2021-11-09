@@ -61,5 +61,6 @@ int *get_diagonal_sums(int **matrix, int size) {
         fflush(stdout);
     }
     printf("\n");
+
     return array;
 }
