@@ -1,13 +1,5 @@
 #include "memory.h"
 
-process *create_process_struct(int size) {
-    process *array = (process *) calloc(size, sizeof(process));
-    array->id = 0;
-    array->index = 0;
-    return array;
-}
-
-
 int **create_matrix(int size) {
     int **matrix = (int **) calloc(size, sizeof(int *));
     for (int i = 0; i < size; ++i) {

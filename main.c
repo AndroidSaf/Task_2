@@ -27,10 +27,6 @@ int main(int argc, char *argv[]) {
                 }
                 else
                     printf("Successfully!\n");
-                for (int i = 0; i < 2 * size - 1; ++i) {
-                    printf("%d ", diag_sum_array[i]);
-                }
-                printf("\n");
                 break;
             case 'h':
                 printf("-s -- size of matrix\n");

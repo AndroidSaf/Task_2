@@ -41,6 +41,15 @@ int diagonal_sum(const char side, int index, int size, int **matrix) {
     }
 }
 
+int get_processes_quantity() {
+    int n_processes = (int) sysconf(_SC_NPROCESSORS_ONLN) * 2;
+    if (n_processes <= 0) {
+        printf("Error: no processors are available to this task!\n");
+        exit(EXIT_FAILURE);
+    }
+    return n_processes;
+}
+
 int *get_diagonal_sums(int **matrix, int size) {
     int *array = create_array(2 *size - 1);
     if (array == NULL) {
@@ -48,18 +57,13 @@ int *get_diagonal_sums(int **matrix, int size) {
         return NULL;
     }
 
-    int n_processes = (int) sysconf(_SC_NPROCESSORS_ONLN) * 2;
-    if (n_processes <= 0) {
-        printf("Error: no processors are available to this task!\n");
-        exit(EXIT_FAILURE);
-    }
-
+    int n_processes = get_processes_quantity();
     if (size <= n_processes)
         n_processes = size;
     printf("Working processes: %d\n", n_processes);
 
-    process *process_array = create_process_struct(n_processes);
-    if (process_array == NULL) {
+    int *pid_array = create_array(n_processes);
+    if (pid_array == NULL) {
         printf("Error: cannot create an array!\n");
         return NULL;
     }
@@ -79,16 +83,15 @@ int *get_diagonal_sums(int **matrix, int size) {
                 printf("Error: cannot create a new one!\n");
                 exit(EXIT_FAILURE);
             }
-            process_array[i].id = getpid();
-            process_array[i].index = i;
+            pid_array[i] = getpid();
         }
     }
 
     if (pid == 0) {
         int process_index;
         for (int i = 0; i < n_processes; ++i) {
-            if (getpid() == process_array[i].id) {
-                process_index = process_array[i].index;
+            if (getpid() == pid_array[i]) {
+                process_index = i;
                 close(fd[i][0]);
             } else {
                 close(fd[i][1]);
@@ -121,6 +124,8 @@ int *get_diagonal_sums(int **matrix, int size) {
             }
             right_index += n_processes;
         }
+
+        //kill(getpid(), SIGSTOP);
         close(fd[process_index][1]);
         exit(EXIT_SUCCESS);
     } else {
@@ -128,18 +133,17 @@ int *get_diagonal_sums(int **matrix, int size) {
             close(fd[i][1]);
         }
 
-        int index = 0, process_index = 0;
+        int index = 0;
         int result[2];
         while (index < 2 * size - 1) {
-            if (read(fd[process_index][0], result, sizeof(int) * 2) < 0) {
-                printf("Error: cannot read the pipe!\n");
-                continue;
+            for (int i = 0; i < n_processes; ++i) {
+                if (read(fd[i][0], result, sizeof(int) * 2) <= 0) {
+                    break;
+                } else {
+                    array[result[0]] = result[1];
+                    index++;
+                }
             }
-            array[result[0]] = result[1];
-            index++;
-            process_index++;
-            if (process_index == n_processes)
-                process_index = 0;
             printf("\r%.2lf%c", (double) index / (2 * size - 1) * 100, '%');
             fflush(stdout);
         }
@@ -151,7 +155,7 @@ int *get_diagonal_sums(int **matrix, int size) {
 
         while (wait(NULL) != -1);
     }
-    free(process_array);
+    free(pid_array);
 
     return array;
 }

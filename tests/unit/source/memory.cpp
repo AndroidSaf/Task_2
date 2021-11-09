@@ -3,13 +3,6 @@
 extern "C" {
 #include "memory.h"
 #define SIZE 10000
-#define N_PROCESSES 10
-}
-
-TEST(MEMORY_TEST, PROCESS_STRUCT_CREATE_TEST) {
-    process *array = create_process_struct(N_PROCESSES);
-    ASSERT_NE(array, nullptr);
-    free(array);
 }
 
 TEST(MEMORY_TEST, MATRIX_CREATE_TEST) {
